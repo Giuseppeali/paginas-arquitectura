@@ -1,5 +1,30 @@
+const getUrlOrSessionData = () => {
+    if (typeof window === 'undefined') {
+        return { name: null, logoUrl: null, email: null };
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlName = urlParams.get('name');
+    const urlLogo = urlParams.get('logo');
+    const urlEmail = urlParams.get('email');
+
+    // If URL parameters are present, save them to session storage
+    if (urlName !== null) sessionStorage.setItem('brandName', urlName || ''); // empty string to allow clearing
+    if (urlLogo !== null) sessionStorage.setItem('brandLogo', urlLogo || '');
+    if (urlEmail !== null) sessionStorage.setItem('brandEmail', urlEmail || '');
+
+    return {
+        name: sessionStorage.getItem('brandName'),
+        logoUrl: sessionStorage.getItem('brandLogo'),
+        email: sessionStorage.getItem('brandEmail')
+    };
+};
+
+const dynamicData = getUrlOrSessionData();
+
 export const brandConfig = {
-    name: import.meta.env.VITE_CLIENT_NAME || 'TTO Arquitectura',
-    logoUrl: import.meta.env.VITE_CLIENT_LOGO || '',
-    email: import.meta.env.VITE_CLIENT_EMAIL || 'hola@ttoarquitectura.com'
+    // Priority: 1. URL/Session parameter -> 2. Environment variable -> 3. Default fallback
+    name: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'TTO Arquitectura',
+    logoUrl: dynamicData.logoUrl || import.meta.env.VITE_CLIENT_LOGO || '',
+    email: dynamicData.email || import.meta.env.VITE_CLIENT_EMAIL || 'hola@ttoarquitectura.com'
 };
