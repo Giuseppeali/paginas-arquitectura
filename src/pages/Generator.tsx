@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 export default function Generator() {
     const [name, setName] = useState('');
     const [logo, setLogo] = useState('');
+    const [invertLogo, setInvertLogo] = useState(false);
     const [email, setEmail] = useState('');
     const [generatedUrl, setGeneratedUrl] = useState('');
     const [copied, setCopied] = useState(false);
@@ -17,11 +18,12 @@ export default function Generator() {
 
         if (name) params.append('name', name);
         if (logo) params.append('logo', logo);
+        if (invertLogo) params.append('invertLogo', 'true');
         if (email) params.append('email', email);
 
         const queryString = params.toString();
         setGeneratedUrl(queryString ? `${baseUrl}/?${queryString}` : baseUrl);
-    }, [name, logo, email]);
+    }, [name, logo, invertLogo, email]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(generatedUrl);
@@ -64,6 +66,19 @@ export default function Generator() {
                                 className="w-full bg-transparent border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
                             />
                             <p className="text-xs text-gray-500 mt-2">Leave blank to use the default text logo.</p>
+
+                            <div className="mt-4 flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id="invertLogo"
+                                    checked={invertLogo}
+                                    onChange={(e) => setInvertLogo(e.target.checked)}
+                                    className="w-4 h-4 rounded border-white/20 bg-transparent text-white focus:ring-1 focus:ring-white focus:ring-offset-0 focus:ring-offset-transparent cursor-pointer"
+                                />
+                                <label htmlFor="invertLogo" className="ml-2 text-sm text-gray-300 cursor-pointer">
+                                    Force logo to be pure white (useful for colored logos on dark backgrounds)
+                                </label>
+                            </div>
                         </div>
 
                         <div>

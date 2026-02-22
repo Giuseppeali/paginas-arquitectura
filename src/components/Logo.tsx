@@ -4,7 +4,8 @@ import { brandConfig } from '../config/brand';
 const Logo = ({ className = "" }: { className?: string }) => {
     if (brandConfig.logoUrl) {
         const imageClasses = className.replace(/\b(h|w)-\d+\b/g, '').replace(/\bmd:(h|w)-\d+\b/g, '').trim();
-        return <img src={brandConfig.logoUrl} alt={brandConfig.name} className={`max-h-12 md:max-h-16 w-auto object-contain ${imageClasses}`} />;
+        const filterClass = brandConfig.invertLogo ? "brightness-0 invert" : "";
+        return <img src={brandConfig.logoUrl} alt={brandConfig.name} className={`max-h-12 md:max-h-16 w-auto object-contain ${filterClass} ${imageClasses}`} />;
     }
 
     return (
