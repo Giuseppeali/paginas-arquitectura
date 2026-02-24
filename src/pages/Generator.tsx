@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Loader2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Generator() {
     const [name, setName] = useState('');
@@ -11,19 +12,53 @@ export default function Generator() {
     const [email, setEmail] = useState('');
     const [generatedUrl, setGeneratedUrl] = useState('');
     const [copied, setCopied] = useState(false);
+    const [slug, setSlug] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generationError, setGenerationError] = useState('');
 
     useEffect(() => {
-        const baseUrl = window.location.origin;
-        const params = new URLSearchParams();
+        // Auto-generate a slug from the name if the slug hasn't been manually edited.
+        // If they clear the name, we clear the slug too.
+        if (name) {
+            setSlug(name.toLowerCase().replace(/[^a-z0-9-]/g, '-'));
+        } else {
+            setSlug('');
+        }
+    }, [name]);
 
-        if (name) params.append('name', name);
-        if (logo) params.append('logo', logo);
-        if (invertLogo) params.append('invertLogo', 'true');
-        if (email) params.append('email', email);
+    const generateLink = async () => {
+        if (!name || !slug) {
+            setGenerationError('Client Name and URL Slug are required.');
+            return;
+        }
 
-        const queryString = params.toString();
-        setGeneratedUrl(queryString ? `${baseUrl}/?${queryString}` : baseUrl);
-    }, [name, logo, invertLogo, email]);
+        setGenerationError('');
+        setIsGenerating(true);
+
+        const clientData = {
+            slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+            name,
+            logo,
+            invert_logo: invertLogo,
+            email
+        };
+
+        const { data, error } = await supabase
+            .from('clients')
+            .upsert(clientData, { onConflict: 'slug' })
+            .select()
+            .single();
+
+        setIsGenerating(false);
+
+        if (error) {
+            console.error("Error saving to Supabase:", error);
+            setGenerationError('Failed to generate link. Check your Supabase configuration.');
+        } else {
+            const baseUrl = window.location.origin;
+            setGeneratedUrl(`${baseUrl}/${clientData.slug}`);
+        }
+    };
 
     const handleCopy = () => {
         navigator.clipboard.writeText(generatedUrl);
@@ -50,10 +85,24 @@ export default function Generator() {
                             <input
                                 type="text"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                }}
                                 placeholder="e.g. Acme Architects"
                                 className="w-full bg-transparent border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
                             />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs tracking-[0.2em] uppercase text-gray-400 mb-3">Custom URL Slug <span className="text-red-500">*</span></label>
+                            <input
+                                type="text"
+                                value={slug}
+                                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                                placeholder="e.g. acme-architects"
+                                className="w-full bg-transparent border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">This will create a link like: yourwebsite.com/<strong>acme-architects</strong></p>
                         </div>
 
                         <div>
@@ -93,18 +142,34 @@ export default function Generator() {
                         </div>
 
                         <div className="pt-8 border-t border-white/10">
-                            <label className="block text-xs tracking-[0.2em] uppercase text-gray-400 mb-3">Generated Link</label>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1 bg-black border border-white/20 rounded-lg px-4 py-3 overflow-x-auto whitespace-nowrap text-gray-300 font-mono text-sm">
-                                    {generatedUrl}
+                            <button
+                                onClick={generateLink}
+                                disabled={isGenerating || !name || !slug}
+                                className="w-full mb-6 flex items-center justify-center gap-2 bg-white text-black px-6 py-4 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGenerating ? <><Loader2 size={18} className="animate-spin" /> Generating...</> : 'Generate Short Link'}
+                            </button>
+
+                            {generationError && (
+                                <p className="text-red-400 text-sm mb-4">{generationError}</p>
+                            )}
+
+                            {generatedUrl && (
+                                <div>
+                                    <label className="block text-xs tracking-[0.2em] uppercase text-gray-400 mb-3">Generated Link</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1 bg-black border border-white/20 rounded-lg px-4 py-3 overflow-x-auto whitespace-nowrap text-gray-300 font-mono text-sm">
+                                            {generatedUrl}
+                                        </div>
+                                        <button
+                                            onClick={handleCopy}
+                                            className="flex items-center justify-center gap-2 bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors w-32"
+                                        >
+                                            {copied ? <><Check size={18} /> Copied!</> : <><Copy size={18} /> Copy</>}
+                                        </button>
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={handleCopy}
-                                    className="flex items-center justify-center gap-2 bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors w-32"
-                                >
-                                    {copied ? <><Check size={18} /> Copied!</> : <><Copy size={18} /> Copy</>}
-                                </button>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </motion.div>

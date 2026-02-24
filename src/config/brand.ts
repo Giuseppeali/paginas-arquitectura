@@ -28,6 +28,7 @@ const dynamicData = getUrlOrSessionData();
 export const brandConfig = {
     // Priority: 1. URL/Session parameter -> 2. Environment variable -> 3. Default fallback
     name: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'TTO Arquitectura',
+    fullName: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'TTO Arquitectura S.C.',
     logoUrl: dynamicData.logoUrl || import.meta.env.VITE_CLIENT_LOGO || '',
     email: dynamicData.email || import.meta.env.VITE_CLIENT_EMAIL || 'hola@ttoarquitectura.com',
     invertLogo: dynamicData.invertLogo || import.meta.env.VITE_CLIENT_INVERT_LOGO === 'true'

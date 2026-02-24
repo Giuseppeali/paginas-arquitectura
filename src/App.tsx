@@ -5,6 +5,7 @@ import Contact from './pages/Contact';
 import Projects from './pages/Projects';
 import ProjectDetails from './pages/ProjectDetails';
 import Generator from './pages/Generator';
+import ClientProfile from './pages/ClientProfile';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:id" element={<ProjectDetails />} />
         <Route path="/generator" element={<Generator />} />
+        <Route path="/:slug" element={<ClientProfile />} />
       </Routes>
     </Router>
   );
