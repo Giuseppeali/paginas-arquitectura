@@ -55,10 +55,10 @@ export default function Admin() {
         }
     };
 
-    const handleCopy = (slug: string) => {
-        const url = `${window.location.origin}/${slug}`;
+    const handleCopy = (client: Client) => {
+        const url = `${window.location.origin}/${client.slug}?token=${client.id}`;
         navigator.clipboard.writeText(url);
-        setCopiedSlug(slug);
+        setCopiedSlug(client.slug);
         setTimeout(() => setCopiedSlug(null), 2000);
     };
 
@@ -132,7 +132,7 @@ export default function Admin() {
                                                     <Edit2 size={18} />
                                                 </Link>
                                                 <button
-                                                    onClick={() => handleCopy(client.slug)}
+                                                    onClick={() => handleCopy(client)}
                                                     className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-white"
                                                     title="Copy Link"
                                                 >

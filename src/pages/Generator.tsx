@@ -96,7 +96,7 @@ export default function Generator() {
             setGenerationError('Failed to generate link. Check your Supabase configuration.');
         } else {
             const baseUrl = window.location.origin;
-            setGeneratedUrl(`${baseUrl}/${clientData.slug}`);
+            setGeneratedUrl(`${baseUrl}/${data.slug}?token=${data.id}`);
         }
     };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabaseClient';
 import Home from './Home';
@@ -11,18 +11,25 @@ import { brandConfig } from '../config/brand';
 export default function ClientProfile() {
     const { slug } = useParams();
     const [clientData, setClientData] = useState<any>(null);
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
     useEffect(() => {
         const fetchClientData = async () => {
-            if (!slug) return;
+            if (!slug || !token) {
+                setError(true);
+                setLoading(false);
+                return;
+            }
 
             setLoading(true);
             const { data, error } = await supabase
                 .from('clients')
                 .select('*')
                 .eq('slug', slug)
+                .eq('id', token)
                 .single();
 
             if (error || !data) {
@@ -46,6 +53,9 @@ export default function ClientProfile() {
                 sessionStorage.setItem('brandInvertLogo', data.invert_logo ? 'true' : 'false');
                 sessionStorage.setItem('brandLang', data.language || 'es');
 
+                // Save token to authenticate further access across guarded routes
+                sessionStorage.setItem('client_token', token);
+
                 // Update the document title
                 document.title = data.name;
             }
@@ -68,7 +78,7 @@ export default function ClientProfile() {
     }
 
     if (error) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/unauthorized" replace />;
     }
 
     return <Home />;
