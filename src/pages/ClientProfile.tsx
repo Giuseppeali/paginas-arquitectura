@@ -37,12 +37,14 @@ export default function ClientProfile() {
                 brandConfig.logoUrl = data.logo;
                 brandConfig.email = data.email;
                 brandConfig.invertLogo = data.invert_logo;
+                brandConfig.language = data.language || 'es';
 
                 // Store in session storage so it persists if the user navigates to /projects
                 sessionStorage.setItem('brandName', data.name);
                 sessionStorage.setItem('brandLogo', data.logo || '');
                 sessionStorage.setItem('brandEmail', data.email || '');
                 sessionStorage.setItem('brandInvertLogo', data.invert_logo ? 'true' : 'false');
+                sessionStorage.setItem('brandLang', data.language || 'es');
 
                 // Update the document title
                 document.title = data.name;

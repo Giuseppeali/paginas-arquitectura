@@ -4,8 +4,11 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { projects } from '../data/projects';
+import { brandConfig } from '../config/brand';
+import { useTranslation } from '../utils/translations';
 
 export default function Projects() {
+    const { t, lang } = useTranslation(brandConfig.language);
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -20,9 +23,9 @@ export default function Projects() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="text-5xl md:text-7xl font-display font-light tracking-tighter uppercase"
+                        className="text-5xl md:text-7xl font-display font-light tracking-tighter uppercase whitespace-pre-line"
                     >
-                        Index of<br />Works
+                        {t.projects.title}
                     </motion.h1>
                 </div>
 
@@ -43,8 +46,8 @@ export default function Projects() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 <div className="absolute bottom-0 left-0 p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                    <p className="text-xs tracking-[0.2em] uppercase mb-2 text-gray-300">{project.year} — {project.location}</p>
-                                    <h3 className="text-2xl md:text-3xl font-display uppercase tracking-tight">{project.title}</h3>
+                                    <p className="text-xs tracking-[0.2em] uppercase mb-2 text-gray-300">{project.year} — {project.location[lang]}</p>
+                                    <h3 className="text-2xl md:text-3xl font-display uppercase tracking-tight">{project.title[lang]}</h3>
                                 </div>
                             </motion.div>
                         </Link>

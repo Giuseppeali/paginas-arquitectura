@@ -5,8 +5,10 @@ import Logo from '../components/Logo';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { brandConfig } from '../config/brand';
+import { useTranslation } from '../utils/translations';
 
 export default function Contact() {
+    const { t } = useTranslation(brandConfig.language);
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -25,13 +27,12 @@ export default function Contact() {
                         transition={{ duration: 0.8 }}
                         className="flex flex-col justify-center"
                     >
-                        <h1 className="text-5xl md:text-7xl font-display font-light tracking-tighter uppercase mb-8">
-                            Let's build<br />
-                            <span className="font-medium">together</span>
+                        <h1 className="text-5xl md:text-7xl font-display font-light tracking-tighter uppercase mb-8 whitespace-pre-line">
+                            {t.contact.title}
                         </h1>
 
                         <p className="text-lg font-light leading-relaxed text-gray-300 mb-12 max-w-md">
-                            Whether you have a specific project in mind or just want to explore possibilities, our team is ready to listen and collaborate.
+                            {t.contact.subtitle}
                         </p>
 
                         <div className="space-y-10">
@@ -43,7 +44,7 @@ export default function Contact() {
                             </div>
 
                             <div>
-                                <h4 className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-4">Visit Our Office</h4>
+                                <h4 className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-4">{t.contact.offices}</h4>
                                 <address className="not-italic text-lg font-light leading-relaxed text-gray-300">
                                     Avenida Paseo de la Reforma, 45<br />
                                     06600 Mexico City<br />
@@ -54,7 +55,7 @@ export default function Contact() {
                             </div>
 
                             <div>
-                                <h4 className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-4">Follow Us</h4>
+                                <h4 className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-4">{t.footer.social}</h4>
                                 <div className="flex space-x-6">
                                     <a href="#" className="hover:text-white transition-colors flex items-center space-x-2 text-gray-300">
                                         <Instagram size={20} />
@@ -76,7 +77,7 @@ export default function Contact() {
                     >
                         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
                             <div className="space-y-2">
-                                <label htmlFor="name" className="text-xs tracking-[0.2em] uppercase text-gray-500 block">Name</label>
+                                <label htmlFor="name" className="text-xs tracking-[0.2em] uppercase text-gray-500 block">{t.contact.form.name}</label>
                                 <input
                                     type="text"
                                     id="name"
@@ -87,7 +88,7 @@ export default function Contact() {
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="email" className="text-xs tracking-[0.2em] uppercase text-gray-500 block">Email</label>
+                                <label htmlFor="email" className="text-xs tracking-[0.2em] uppercase text-gray-500 block">{t.contact.form.email}</label>
                                 <input
                                     type="email"
                                     id="email"
@@ -117,7 +118,7 @@ export default function Contact() {
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="message" className="text-xs tracking-[0.2em] uppercase text-gray-500 block">Message</label>
+                                <label htmlFor="message" className="text-xs tracking-[0.2em] uppercase text-gray-500 block">{t.contact.form.message}</label>
                                 <textarea
                                     id="message"
                                     rows={4}
@@ -131,7 +132,7 @@ export default function Contact() {
                                 type="submit"
                                 className="group w-full flex items-center justify-center space-x-4 text-sm tracking-[0.2em] uppercase bg-white text-black py-4 rounded-full hover:bg-gray-200 transition-colors mt-4"
                             >
-                                <span>Send Message</span>
+                                <span>{t.contact.form.send}</span>
                                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                             </button>
                         </form>

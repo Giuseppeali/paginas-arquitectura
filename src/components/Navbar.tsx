@@ -3,11 +3,14 @@ import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from './Logo';
+import { useTranslation } from '../utils/translations';
+import { brandConfig } from '../config/brand';
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
+    const { t } = useTranslation(brandConfig.language);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -21,7 +24,7 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[#050505]/90 backdrop-blur-md py-4 border-b border-white/5' : 'py-8'}`}>
+            <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b ${scrolled ? 'bg-[#050505]/90 backdrop-blur-md py-4 border-white/5' : 'py-8 border-transparent'}`}>
                 <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
                     <Link to="/" className="z-50 relative">
                         <Logo className="h-6 md:h-8 text-white" />
@@ -31,16 +34,16 @@ export default function Navbar() {
                     <div className="hidden md:flex space-x-12 text-sm tracking-[0.2em] uppercase font-medium">
                         {isHome ? (
                             <>
-                                <a href="#studio" className="hover:text-gray-400 transition-colors">Studio</a>
-                                <Link to="/projects" className="hover:text-gray-400 transition-colors">Projects</Link>
+                                <a href="#studio" className="hover:text-gray-400 transition-colors">{t.nav.studio}</a>
+                                <Link to="/projects" className="hover:text-gray-400 transition-colors">{t.nav.projects}</Link>
                             </>
                         ) : (
                             <>
-                                <a href="/#studio" className="hover:text-gray-400 transition-colors">Studio</a>
-                                <Link to="/projects" className="hover:text-gray-400 transition-colors">Projects</Link>
+                                <a href="/#studio" className="hover:text-gray-400 transition-colors">{t.nav.studio}</a>
+                                <Link to="/projects" className="hover:text-gray-400 transition-colors">{t.nav.projects}</Link>
                             </>
                         )}
-                        <Link to="/contact" className="hover:text-gray-400 transition-colors">Contact</Link>
+                        <Link to="/contact" className="hover:text-gray-400 transition-colors">{t.nav.contact}</Link>
                     </div>
 
                     {/* Mobile Menu Toggle */}
@@ -63,7 +66,7 @@ export default function Navbar() {
                         className="fixed inset-0 bg-[#050505] z-40 flex flex-col justify-center items-center space-y-8"
                     >
                         <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-3xl font-display tracking-widest uppercase hover:text-gray-400 transition-colors">Home</Link>
-                        <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-display tracking-widest uppercase hover:text-gray-400 transition-colors">Contact</Link>
+                        <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-display tracking-widest uppercase hover:text-gray-400 transition-colors">{t.nav.contact}</Link>
                     </motion.div>
                 )}
             </AnimatePresence>
