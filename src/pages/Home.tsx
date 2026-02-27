@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Logo from '../components/Logo';
@@ -12,7 +12,23 @@ import { useTranslation } from '../utils/translations';
 export default function Home() {
     const { t, lang } = useTranslation(brandConfig.language);
     const { slug } = useParams();
+    const location = useLocation();
     const prefix = slug ? `/${slug}` : '';
+
+    useEffect(() => {
+        if (location.hash) {
+            // Un pequeño timeout asegura que los elementos estén montados antes de saltar
+            setTimeout(() => {
+                const element = document.getElementById(location.hash.replace('#', ''));
+                if (element) {
+                    element.scrollIntoView({ behavior: 'auto' });
+                }
+            }, 10);
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }, [location]);
+
     return (
         <div className="min-h-screen bg-[#050505] text-[#f5f5f5] font-sans selection:bg-white selection:text-black">
             <Navbar />

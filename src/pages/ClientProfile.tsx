@@ -34,7 +34,7 @@ export default function ClientProfile() {
             }
 
             setLoading(true);
-            const { data, fetchError } = await supabase
+            const { data, error: fetchError } = await supabase
                 .from('clients')
                 .select('*')
                 .eq('slug', slug)
