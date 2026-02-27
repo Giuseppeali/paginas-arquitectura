@@ -2,39 +2,53 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Navigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabaseClient';
-import Home from './Home';
+import { Outlet } from 'react-router-dom';
 import { brandConfig } from '../config/brand';
 
-// We wrap the Home component, injecting the fetched client data.
+// We wrap the sub-routes via an Outlet, injecting the fetched client data.
 // Based on the original Generator, it expected: name, logo, invertLogo, email
 
 export default function ClientProfile() {
     const { slug } = useParams();
     const [clientData, setClientData] = useState<any>(null);
     const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+
+    // We get the token from the URL, or fallback to the session storage if they've already authenticated
+    const urlToken = searchParams.get('token');
+    const sessionToken = sessionStorage.getItem('client_token');
+    const token = urlToken || sessionToken;
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
     useEffect(() => {
         const fetchClientData = async () => {
-            if (!slug || !token) {
+            if (!slug) {
+                setLoading(false);
+                return;
+            }
+            if (!token) {
                 setError(true);
                 setLoading(false);
                 return;
             }
 
             setLoading(true);
-            const { data, error } = await supabase
+            const { data, fetchError } = await supabase
                 .from('clients')
                 .select('*')
                 .eq('slug', slug)
                 .eq('id', token)
                 .single();
 
-            if (error || !data) {
-                console.error("Error fetching client data:", error);
+            if (fetchError || !data) {
+                console.error("Error fetching client data:", fetchError);
                 setError(true);
+
+                // Clear invalid token
+                if (sessionToken === token) {
+                    sessionStorage.removeItem('client_token');
+                }
             } else {
                 setClientData(data);
 
@@ -58,12 +72,17 @@ export default function ClientProfile() {
 
                 // Update the document title
                 document.title = data.name;
+
+                // Clean up the URL if the token was in the search params
+                if (urlToken) {
+                    window.history.replaceState({}, '', `/${slug}`);
+                }
             }
             setLoading(false);
         };
 
         fetchClientData();
-    }, [slug]);
+    }, [slug, token, urlToken, sessionToken]);
 
     if (loading) {
         return (
@@ -81,5 +100,5 @@ export default function ClientProfile() {
         return <Navigate to="/unauthorized" replace />;
     }
 
-    return <Home />;
+    return <Outlet />;
 }

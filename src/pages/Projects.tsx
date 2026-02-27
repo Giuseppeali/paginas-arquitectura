@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { projects } from '../data/projects';
@@ -9,6 +9,13 @@ import { useTranslation } from '../utils/translations';
 
 export default function Projects() {
     const { t, lang } = useTranslation(brandConfig.language);
+    const location = useLocation();
+
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const clientToken = sessionStorage.getItem('client_token');
+    const clientSlug = clientToken ? pathParts[0] || '' : '';
+    const prefix = clientSlug ? `/${clientSlug}` : '';
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -31,7 +38,7 @@ export default function Projects() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-8 max-w-[1600px] mx-auto">
                     {projects.map((project, index) => (
-                        <Link to={`/projects/${project.id}`} key={project.id}>
+                        <Link to={`${prefix}/projects/${project.id}`} key={project.id}>
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}

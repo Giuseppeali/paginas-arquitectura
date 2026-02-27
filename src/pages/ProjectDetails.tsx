@@ -14,6 +14,11 @@ export default function ProjectDetails() {
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);
 
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const clientToken = sessionStorage.getItem('client_token');
+    const clientSlug = clientToken ? pathParts[0] || '' : '';
+    const prefix = clientSlug ? `/${clientSlug}` : '';
+
     useEffect(() => {
         window.scrollTo(0, 0);
         if (id) {
@@ -21,7 +26,7 @@ export default function ProjectDetails() {
             if (foundProject) {
                 setProject(foundProject);
             } else {
-                navigate('/projects');
+                navigate(`${prefix}/projects`);
             }
         }
     }, [id, navigate]);
@@ -69,7 +74,7 @@ export default function ProjectDetails() {
                         className="md:col-span-4"
                     >
                         <Link
-                            to="/projects"
+                            to={`${prefix}/projects`}
                             className="inline-flex items-center space-x-2 text-sm tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors mb-16"
                         >
                             <ArrowLeft size={16} />

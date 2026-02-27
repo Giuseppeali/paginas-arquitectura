@@ -21,12 +21,14 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Client Guarded Routes */}
+          {/* Client Guarded Routes (Support optional /:slug prefix for white-labeling) */}
           <Route element={<ClientGuard />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/projects/:id" element={<ProjectDetails />} />
+            <Route path="/:slug?" element={<ClientProfile />}>
+              <Route index element={<Home />} />
+              <Route path="contact" element={<Contact />} />
+              <Route path="projects" element={<Projects />} />
+              <Route path="projects/:id" element={<ProjectDetails />} />
+            </Route>
           </Route>
 
           {/* Protected Admin Routes */}
@@ -34,9 +36,6 @@ export default function App() {
             <Route path="/generator" element={<Generator />} />
             <Route path="/admin" element={<Admin />} />
           </Route>
-
-          {/* Entry point for clients via custom link */}
-          <Route path="/:slug" element={<ClientProfile />} />
         </Routes>
       </Router>
     </AuthProvider>

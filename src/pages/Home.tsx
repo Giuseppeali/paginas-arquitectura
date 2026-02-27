@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Logo from '../components/Logo';
@@ -11,6 +11,12 @@ import { useTranslation } from '../utils/translations';
 
 export default function Home() {
     const { t, lang } = useTranslation(brandConfig.language);
+    const location = useLocation();
+
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const clientToken = sessionStorage.getItem('client_token');
+    const clientSlug = clientToken ? pathParts[0] || '' : '';
+    const prefix = clientSlug ? `/${clientSlug}` : '';
     return (
         <div className="min-h-screen bg-[#050505] text-[#f5f5f5] font-sans selection:bg-white selection:text-black">
             <Navbar />
@@ -43,7 +49,7 @@ export default function Home() {
                         transition={{ duration: 1, delay: 0.8 }}
                         className="mt-12 flex justify-center"
                     >
-                        <Link to="/projects" className="group flex items-center space-x-4 text-sm tracking-[0.2em] uppercase border border-white/30 px-8 py-4 rounded-full hover:bg-white hover:text-black transition-all duration-300">
+                        <Link to={`${prefix}/projects`} className="group flex items-center space-x-4 text-sm tracking-[0.2em] uppercase border border-white/30 px-8 py-4 rounded-full hover:bg-white hover:text-black transition-all duration-300">
                             <span>{t.home.hero.btn}</span>
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
@@ -80,7 +86,7 @@ export default function Home() {
             <section id="projects" className="py-20">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 mb-16 flex justify-between items-end">
                     <h2 className="text-4xl md:text-6xl font-display font-light tracking-tighter uppercase whitespace-pre-line">{t.home.projects.title}</h2>
-                    <Link to="/projects" className="hidden md:flex items-center space-x-2 text-sm tracking-[0.2em] uppercase hover:text-gray-400 transition-colors">
+                    <Link to={`${prefix}/projects`} className="hidden md:flex items-center space-x-2 text-sm tracking-[0.2em] uppercase hover:text-gray-400 transition-colors">
                         <span>{t.home.projects.viewAll}</span>
                         <ArrowRight size={16} />
                     </Link>
@@ -88,7 +94,7 @@ export default function Home() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-8">
                     {projects.map((project, index) => (
-                        <Link to={`/projects/${project.id}`} key={project.id}>
+                        <Link to={`${prefix}/projects/${project.id}`} key={project.id}>
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -111,7 +117,7 @@ export default function Home() {
                     ))}
                 </div>
                 <div className="mt-12 flex justify-center md:hidden">
-                    <Link to="/projects" className="flex items-center space-x-2 text-sm tracking-[0.2em] uppercase border border-white/30 px-8 py-4 rounded-full">
+                    <Link to={`${prefix}/projects`} className="flex items-center space-x-2 text-sm tracking-[0.2em] uppercase border border-white/30 px-8 py-4 rounded-full">
                         <span>{t.home.projects.viewAll}</span>
                         <ArrowRight size={16} />
                     </Link>
