@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Logo from '../components/Logo';
@@ -11,12 +11,8 @@ import { useTranslation } from '../utils/translations';
 
 export default function Home() {
     const { t, lang } = useTranslation(brandConfig.language);
-    const location = useLocation();
-
-    const pathParts = location.pathname.split('/').filter(Boolean);
-    const clientToken = sessionStorage.getItem('client_token');
-    const clientSlug = clientToken ? pathParts[0] || '' : '';
-    const prefix = clientSlug ? `/${clientSlug}` : '';
+    const { slug } = useParams();
+    const prefix = slug ? `/${slug}` : '';
     return (
         <div className="min-h-screen bg-[#050505] text-[#f5f5f5] font-sans selection:bg-white selection:text-black">
             <Navbar />

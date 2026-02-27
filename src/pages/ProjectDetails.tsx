@@ -10,14 +10,11 @@ import { useTranslation } from '../utils/translations';
 
 export default function ProjectDetails() {
     const { t, lang } = useTranslation(brandConfig.language);
-    const { id } = useParams<{ id: string }>();
+    const { id, slug } = useParams<{ id: string, slug?: string }>();
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);
 
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
-    const clientToken = sessionStorage.getItem('client_token');
-    const clientSlug = clientToken ? pathParts[0] || '' : '';
-    const prefix = clientSlug ? `/${clientSlug}` : '';
+    const prefix = slug ? `/${slug}` : '';
 
     useEffect(() => {
         window.scrollTo(0, 0);
