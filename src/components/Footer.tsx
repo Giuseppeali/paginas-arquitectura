@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-24">
                     <div className="lg:col-span-2">
-                        <Logo className="h-8 text-white mb-8" />
+                        <Logo className="h-8 text-white mb-8" align="left" />
                         <p className="text-2xl md:text-4xl font-display font-light tracking-tighter leading-tight mb-8 max-w-md">
                             {t.contact.subtitle}
                         </p>

@@ -74,7 +74,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
                     <div className="md:col-span-4">
                         <h2 className="text-sm tracking-[0.2em] uppercase text-gray-400 mb-4">{t.home.about.subtitle}</h2>
-                        <Logo className="h-10 text-white opacity-80" />
+                        <Logo className="h-10 text-white opacity-80" align="left" />
                     </div>
                     <div className="md:col-span-8 md:col-start-6">
                         <p className="text-2xl md:text-4xl font-light leading-snug tracking-tight">

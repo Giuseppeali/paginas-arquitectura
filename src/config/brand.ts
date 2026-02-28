@@ -1,6 +1,6 @@
 const getUrlOrSessionData = () => {
     if (typeof window === 'undefined') {
-        return { name: null, logoUrl: null, email: null, invertLogo: null, language: null };
+        return { name: null, logoUrl: null, email: null, invertLogo: null, language: null, logoScale: null };
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -9,6 +9,7 @@ const getUrlOrSessionData = () => {
     const urlEmail = urlParams.get('email');
     const urlInvert = urlParams.get('invertLogo');
     const urlLang = urlParams.get('language');
+    const urlScale = urlParams.get('logoScale');
 
     // If URL parameters are present, save them to session storage
     if (urlName !== null) sessionStorage.setItem('brandName', urlName || ''); // empty string to allow clearing
@@ -16,13 +17,15 @@ const getUrlOrSessionData = () => {
     if (urlEmail !== null) sessionStorage.setItem('brandEmail', urlEmail || '');
     if (urlInvert !== null) sessionStorage.setItem('brandInvertLogo', urlInvert || 'false');
     if (urlLang !== null) sessionStorage.setItem('brandLang', urlLang || 'es');
+    if (urlScale !== null) sessionStorage.setItem('brandLogoScale', urlScale || '100');
 
     return {
         name: sessionStorage.getItem('brandName'),
         logoUrl: sessionStorage.getItem('brandLogo'),
         email: sessionStorage.getItem('brandEmail'),
         invertLogo: sessionStorage.getItem('brandInvertLogo') === 'true',
-        language: sessionStorage.getItem('brandLang') as 'en' | 'es' | null
+        language: sessionStorage.getItem('brandLang') as 'en' | 'es' | null,
+        logoScale: sessionStorage.getItem('brandLogoScale') ? parseInt(sessionStorage.getItem('brandLogoScale')!) : null
     };
 };
 
@@ -35,5 +38,7 @@ export const brandConfig = {
     logoUrl: dynamicData.logoUrl || import.meta.env.VITE_CLIENT_LOGO || '',
     email: dynamicData.email || import.meta.env.VITE_CLIENT_EMAIL || 'hola@ttoarquitectura.com',
     invertLogo: dynamicData.invertLogo || import.meta.env.VITE_CLIENT_INVERT_LOGO === 'true',
-    language: dynamicData.language || 'es' as 'en' | 'es'
+    language: dynamicData.language || 'es' as 'en' | 'es',
+    logoScale: dynamicData.logoScale || parseInt(import.meta.env.VITE_CLIENT_LOGO_SCALE || '100')
 };
+

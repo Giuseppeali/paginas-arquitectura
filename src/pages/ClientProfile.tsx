@@ -59,6 +59,7 @@ export default function ClientProfile() {
                 brandConfig.email = data.email;
                 brandConfig.invertLogo = data.invert_logo;
                 brandConfig.language = data.language || 'es';
+                brandConfig.logoScale = data.logo_scale || 100;
 
                 // Store in session storage so it persists if the user navigates to /projects
                 sessionStorage.setItem('brandName', data.name);
@@ -66,6 +67,7 @@ export default function ClientProfile() {
                 sessionStorage.setItem('brandEmail', data.email || '');
                 sessionStorage.setItem('brandInvertLogo', data.invert_logo ? 'true' : 'false');
                 sessionStorage.setItem('brandLang', data.language || 'es');
+                sessionStorage.setItem('brandLogoScale', (data.logo_scale || 100).toString());
 
                 // Save token to authenticate further access across guarded routes
                 sessionStorage.setItem('client_token', token);

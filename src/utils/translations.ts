@@ -73,6 +73,8 @@ export const translations = {
             slugHint: 'This will create a link like: yourwebsite.com/',
             slugEditHint: 'The slug cannot be changed to prevent breaking existing links.',
             logo: 'Company Logo URL',
+            logoScale: 'Logo Display Scale',
+            preview: 'Preview',
             invertLogo: 'Invert Logo Color (for dark backgrounds)',
             email: 'Client Email (Optional)',
             language: 'Display Language',
@@ -83,7 +85,9 @@ export const translations = {
             successGenerate: 'Generated Link',
             successUpdate: 'Update Successful',
             copy: 'Copy',
-            copied: 'Copied!'
+            copied: 'Copied!',
+            logoUpload: 'Upload File',
+            logoRemoveMargins: 'Remove Invisible Margins'
         },
         admin: {
             title: 'Dashboard',
@@ -172,6 +176,8 @@ export const translations = {
             slugHint: 'Esto creará un enlace como: tuweb.com/',
             slugEditHint: 'La URL no se puede cambiar para evitar romper enlaces existentes.',
             logo: 'URL del Logo de la Empresa',
+            logoScale: 'Escala Visual del Logo',
+            preview: 'Vista Previa',
             invertLogo: 'Invertir Color del Logo (para fondos oscuros)',
             email: 'Correo del Cliente (Opcional)',
             language: 'Idioma de Visualización',
@@ -182,7 +188,9 @@ export const translations = {
             successGenerate: 'Enlace Generado',
             successUpdate: 'Actualización Exitosa',
             copy: 'Copiar',
-            copied: '¡Copiado!'
+            copied: '¡Copiado!',
+            logoUpload: 'Subir Archivo',
+            logoRemoveMargins: 'Quitar Márgenes Invisibles'
         },
         admin: {
             title: 'Panel de Control',

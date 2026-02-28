@@ -3,14 +3,17 @@ import { motion } from 'motion/react';
 import { Copy, Check, Loader2, Edit3 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Logo from '../components/Logo';
 import { supabase } from '../lib/supabaseClient';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../utils/translations';
+import { cropTransparentPixels } from '../utils/imageCropper';
 
 export default function Generator() {
     const { t } = useTranslation('es'); // Admin pages default to Spanish
     const [name, setName] = useState('');
     const [logo, setLogo] = useState('');
+    const [logoScale, setLogoScale] = useState(100);
     const [invertLogo, setInvertLogo] = useState(false);
     const [email, setEmail] = useState('');
     const [language, setLanguage] = useState<'en' | 'es'>('es');
@@ -19,6 +22,8 @@ export default function Generator() {
     const [slug, setSlug] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [generationError, setGenerationError] = useState('');
+    const [isCropping, setIsCropping] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     // Edit mode states
     const [searchParams] = useSearchParams();
@@ -40,6 +45,7 @@ export default function Generator() {
                     setName(data.name || '');
                     setSlug(data.slug || '');
                     setLogo(data.logo || '');
+                    setLogoScale(data.logo_scale ?? 100);
                     setInvertLogo(data.invert_logo || false);
                     setEmail(data.email || '');
                     setLanguage(data.language || 'es');
@@ -65,6 +71,37 @@ export default function Generator() {
         }
     }, [name, isEditMode]);
 
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsCropping(true);
+        try {
+            const croppedDataUrl = await cropTransparentPixels(file);
+            setLogo(croppedDataUrl);
+        } catch (err) {
+            console.error("Cropping failed:", err);
+            alert('Failed to crop logo. Try a different file.');
+        } finally {
+            setIsCropping(false);
+            if (fileInputRef.current) fileInputRef.current.value = ''; // Reset input
+        }
+    };
+
+    const handleCropUrl = async () => {
+        if (!logo || logo.startsWith('data:image')) return; // Don't crop if it's already a Data URL (presumably cropped)
+        setIsCropping(true);
+        try {
+            const croppedDataUrl = await cropTransparentPixels(logo);
+            setLogo(croppedDataUrl);
+        } catch (err) {
+            console.error("Cropping from URL failed:", err);
+            alert('Failed to crop logo from URL. It might be blocked by browser CORS restrictions. Please download the image and upload it as a file instead.');
+        } finally {
+            setIsCropping(false);
+        }
+    };
+
     const generateLink = async () => {
         if (!name || !slug) {
             setGenerationError('Client Name and URL Slug are required.');
@@ -78,6 +115,7 @@ export default function Generator() {
             slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
             name,
             logo,
+            logo_scale: logoScale,
             invert_logo: invertLogo,
             email,
             language
@@ -160,14 +198,87 @@ export default function Generator() {
 
                             <div>
                                 <label className="block text-xs tracking-[0.2em] uppercase text-gray-400 mb-3">{t.generator.logo}</label>
-                                <input
-                                    type="text"
-                                    value={logo}
-                                    onChange={(e) => setLogo(e.target.value)}
-                                    placeholder="https://example.com/logo.png"
-                                    className="w-full bg-transparent border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
-                                />
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={logo}
+                                            onChange={(e) => setLogo(e.target.value)}
+                                            placeholder="https://example.com/logo.png"
+                                            className="flex-1 bg-transparent border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
+                                        />
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            ref={fileInputRef}
+                                            onChange={handleLogoUpload}
+                                        />
+                                        <button
+                                            onClick={() => fileInputRef.current?.click()}
+                                            disabled={isCropping}
+                                            className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 whitespace-nowrap text-sm"
+                                        >
+                                            {isCropping ? <Loader2 size={16} className="animate-spin" /> : t.generator.logoUpload}
+                                        </button>
+                                    </div>
+
+                                    {logo && !logo.startsWith('data:image') && (
+                                        <button
+                                            onClick={handleCropUrl}
+                                            disabled={isCropping}
+                                            className="flex items-center justify-center gap-2 border border-white/20 hover:bg-white/10 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+                                        >
+                                            {isCropping ? <Loader2 size={16} className="animate-spin" /> : t.generator.logoRemoveMargins}
+                                        </button>
+                                    )}
+                                </div>
                                 <p className="text-xs text-gray-500 mt-2">Leave blank to use the default text logo.</p>
+
+                                {logo && (
+                                    <div className="mt-4 p-4 border border-white/10 rounded-lg bg-black/30">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <label className="text-sm tracking-[0.1em] uppercase text-gray-400">{t.generator.logoScale}: {logoScale}%</label>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="30"
+                                            max="200"
+                                            value={logoScale}
+                                            onChange={(e) => setLogoScale(parseInt(e.target.value))}
+                                            className="w-full accent-white h-1 outline-none mt-1"
+                                        />
+                                        <div className="mt-6 border border-white/20 rounded-md overflow-hidden relative">
+                                            <div className="bg-gray-900/50 p-2 text-[10px] text-gray-500 uppercase tracking-widest border-b border-white/10">
+                                                {t.generator.preview} (1:1 Navbar Desktop)
+                                            </div>
+                                            {/* Fake Navbar - Scrollable to simulate true desktop widths */}
+                                            <div
+                                                className="w-full transition-colors overflow-x-auto"
+                                                style={{ background: invertLogo ? '#fff' : '#050505' }}
+                                            >
+                                                {/* Inner Container simulating max-w-7xl px-6 md:px-12 but with a min-width to prevent squishing */}
+                                                <div className="min-w-[900px] w-full px-8 md:px-12 py-6 flex justify-between items-center">
+                                                    {/* Real Logo Component for accurate 1:1 preview */}
+                                                    <Logo
+                                                        className="h-8 md:h-12 text-white"
+                                                        overrideUrl={logo}
+                                                        overrideScale={logoScale}
+                                                        overrideInvert={invertLogo}
+                                                        overrideName={name || 'Preview'}
+                                                    />
+
+                                                    {/* Fake Menu Items (visual only) */}
+                                                    <div className={`flex space-x-12 text-sm tracking-[0.2em] uppercase font-medium ${invertLogo ? 'text-black/50' : 'text-white/50'}`}>
+                                                        <span>ESTUDIO</span>
+                                                        <span>PROYECTOS</span>
+                                                        <span>CONTACTO</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="mt-4 flex items-center">
                                     <input
