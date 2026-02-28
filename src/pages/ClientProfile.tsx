@@ -83,7 +83,7 @@ export default function ClientProfile() {
 
                 // Clean up the URL if the token was in the search params
                 if (urlToken) {
-                    window.history.replaceState({}, '', `/${slug}`);
+                    window.history.replaceState({}, '', window.location.pathname);
                 }
             }
             setLoading(false);
