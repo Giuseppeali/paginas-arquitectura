@@ -1,9 +1,10 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function ClientGuard() {
     const { session, loading } = useAuth();
+    const [searchParams] = useSearchParams();
 
     // While checking initial auth state, we can show a loader or nothing
     if (loading) {
@@ -17,9 +18,10 @@ export default function ClientGuard() {
 
     // Check if there is an active valid client session token
     const clientToken = sessionStorage.getItem('client_token');
+    const urlToken = searchParams.get('token');
 
-    // If not admin and no client token, deny access
-    if (!clientToken) {
+    // If not admin and no client token or url token, deny access
+    if (!clientToken && !urlToken) {
         return <Navigate to="/unauthorized" replace />;
     }
 
