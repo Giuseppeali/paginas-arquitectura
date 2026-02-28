@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Navigate, useSearchParams } from 'react-router-dom';
+import { useParams, Navigate, useSearchParams, useNavigate, Outlet } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabaseClient';
-import { Outlet } from 'react-router-dom';
 import { brandConfig } from '../config/brand';
 
 // We wrap the sub-routes via an Outlet, injecting the fetched client data.
@@ -10,6 +9,7 @@ import { brandConfig } from '../config/brand';
 
 export default function ClientProfile() {
     const { slug } = useParams();
+    const navigate = useNavigate();
     const [clientData, setClientData] = useState<any>(null);
     const [searchParams] = useSearchParams();
 
@@ -24,6 +24,11 @@ export default function ClientProfile() {
     useEffect(() => {
         const fetchClientData = async () => {
             if (!slug) {
+                const storedSlug = sessionStorage.getItem('clientSlug');
+                if (storedSlug) {
+                    navigate(`/${storedSlug}`, { replace: true });
+                    return;
+                }
                 setLoading(false);
                 return;
             }
@@ -71,6 +76,7 @@ export default function ClientProfile() {
 
                 // Save token to authenticate further access across guarded routes
                 sessionStorage.setItem('client_token', token);
+                sessionStorage.setItem('clientSlug', slug);
 
                 // Update the document title
                 document.title = data.name;
