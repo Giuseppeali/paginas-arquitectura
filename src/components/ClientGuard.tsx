@@ -17,7 +17,7 @@ export default function ClientGuard() {
     }
 
     // Check if there is an active valid client session token
-    const clientToken = sessionStorage.getItem('client_token');
+    const clientToken = localStorage.getItem('client_token');
     const urlToken = searchParams.get('token');
 
     // If not admin and no client token or url token, deny access

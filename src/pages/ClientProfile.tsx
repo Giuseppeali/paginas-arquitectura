@@ -13,9 +13,9 @@ export default function ClientProfile() {
     const [clientData, setClientData] = useState<any>(null);
     const [searchParams] = useSearchParams();
 
-    // We get the token from the URL, or fallback to the session storage if they've already authenticated
+    // We get the token from the URL, or fallback to the local storage if they've already authenticated
     const urlToken = searchParams.get('token');
-    const sessionToken = sessionStorage.getItem('client_token');
+    const sessionToken = localStorage.getItem('client_token');
     const token = urlToken || sessionToken;
 
     const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ export default function ClientProfile() {
     useEffect(() => {
         const fetchClientData = async () => {
             if (!slug) {
-                const storedSlug = sessionStorage.getItem('clientSlug');
+                const storedSlug = localStorage.getItem('clientSlug');
                 if (storedSlug) {
                     navigate(`/${storedSlug}`, { replace: true });
                     return;
@@ -52,7 +52,7 @@ export default function ClientProfile() {
 
                 // Clear invalid token
                 if (sessionToken === token) {
-                    sessionStorage.removeItem('client_token');
+                    localStorage.removeItem('client_token');
                 }
             } else {
                 setClientData(data);
@@ -66,17 +66,17 @@ export default function ClientProfile() {
                 brandConfig.language = data.language || 'es';
                 brandConfig.logoScale = data.logo_scale || 100;
 
-                // Store in session storage so it persists if the user navigates to /projects
-                sessionStorage.setItem('brandName', data.name);
-                sessionStorage.setItem('brandLogo', data.logo || '');
-                sessionStorage.setItem('brandEmail', data.email || '');
-                sessionStorage.setItem('brandInvertLogo', data.invert_logo ? 'true' : 'false');
-                sessionStorage.setItem('brandLang', data.language || 'es');
-                sessionStorage.setItem('brandLogoScale', (data.logo_scale || 100).toString());
+                // Store in local storage so it persists if the user navigates to /projects
+                localStorage.setItem('brandName', data.name);
+                localStorage.setItem('brandLogo', data.logo || '');
+                localStorage.setItem('brandEmail', data.email || '');
+                localStorage.setItem('brandInvertLogo', data.invert_logo ? 'true' : 'false');
+                localStorage.setItem('brandLang', data.language || 'es');
+                localStorage.setItem('brandLogoScale', (data.logo_scale || 100).toString());
 
                 // Save token to authenticate further access across guarded routes
-                sessionStorage.setItem('client_token', token);
-                sessionStorage.setItem('clientSlug', slug);
+                localStorage.setItem('client_token', token);
+                localStorage.setItem('clientSlug', slug);
 
                 // Update the document title
                 document.title = data.name;
