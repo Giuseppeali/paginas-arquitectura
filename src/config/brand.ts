@@ -11,21 +11,21 @@ const getUrlOrSessionData = () => {
     const urlLang = urlParams.get('language');
     const urlScale = urlParams.get('logoScale');
 
-    // If URL parameters are present, save them to session storage
-    if (urlName !== null) sessionStorage.setItem('brandName', urlName || ''); // empty string to allow clearing
-    if (urlLogo !== null) sessionStorage.setItem('brandLogo', urlLogo || '');
-    if (urlEmail !== null) sessionStorage.setItem('brandEmail', urlEmail || '');
-    if (urlInvert !== null) sessionStorage.setItem('brandInvertLogo', urlInvert || 'false');
-    if (urlLang !== null) sessionStorage.setItem('brandLang', urlLang || 'es');
-    if (urlScale !== null) sessionStorage.setItem('brandLogoScale', urlScale || '100');
+    // If URL parameters are present, save them to local storage
+    if (urlName !== null) localStorage.setItem('brandName', urlName || ''); // empty string to allow clearing
+    if (urlLogo !== null) localStorage.setItem('brandLogo', urlLogo || '');
+    if (urlEmail !== null) localStorage.setItem('brandEmail', urlEmail || '');
+    if (urlInvert !== null) localStorage.setItem('brandInvertLogo', urlInvert || 'false');
+    if (urlLang !== null) localStorage.setItem('brandLang', urlLang || 'es');
+    if (urlScale !== null) localStorage.setItem('brandLogoScale', urlScale || '100');
 
     return {
-        name: sessionStorage.getItem('brandName'),
-        logoUrl: sessionStorage.getItem('brandLogo'),
-        email: sessionStorage.getItem('brandEmail'),
-        invertLogo: sessionStorage.getItem('brandInvertLogo') === 'true',
-        language: sessionStorage.getItem('brandLang') as 'en' | 'es' | null,
-        logoScale: sessionStorage.getItem('brandLogoScale') ? parseInt(sessionStorage.getItem('brandLogoScale')!) : null
+        name: localStorage.getItem('brandName'),
+        logoUrl: localStorage.getItem('brandLogo'),
+        email: localStorage.getItem('brandEmail'),
+        invertLogo: localStorage.getItem('brandInvertLogo') === 'true',
+        language: localStorage.getItem('brandLang') as 'en' | 'es' | null,
+        logoScale: localStorage.getItem('brandLogoScale') ? parseInt(localStorage.getItem('brandLogoScale')!) : null
     };
 };
 

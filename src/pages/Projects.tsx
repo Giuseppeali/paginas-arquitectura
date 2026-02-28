@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { projects } from '../data/projects';
@@ -9,12 +9,9 @@ import { useTranslation } from '../utils/translations';
 
 export default function Projects() {
     const { t, lang } = useTranslation(brandConfig.language);
-    const location = useLocation();
+    const { slug } = useParams();
 
-    const pathParts = location.pathname.split('/').filter(Boolean);
-    const clientToken = sessionStorage.getItem('client_token');
-    const clientSlug = clientToken ? pathParts[0] || '' : '';
-    const prefix = clientSlug ? `/${clientSlug}` : '';
+    const prefix = slug ? `/${slug}` : '';
 
     useEffect(() => {
         window.scrollTo(0, 0);
