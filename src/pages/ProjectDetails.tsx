@@ -5,11 +5,12 @@ import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { projects, Project } from '../data/projects';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 import { useTranslation } from '../utils/translations';
 
 export default function ProjectDetails() {
-    const { t, lang } = useTranslation(brandConfig.language);
+    const { brand } = useBrand();
+    const { t, lang } = useTranslation(brand.language);
     const { id, slug } = useParams<{ id: string, slug?: string }>();
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);

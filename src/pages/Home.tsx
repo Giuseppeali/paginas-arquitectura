@@ -5,12 +5,13 @@ import { Link, useParams, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Logo from '../components/Logo';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 import { projects } from '../data/projects';
 import { useTranslation } from '../utils/translations';
 
 export default function Home() {
-    const { t, lang } = useTranslation(brandConfig.language);
+    const { brand } = useBrand();
+    const { t, lang } = useTranslation(brand.language);
     const { slug } = useParams();
     const location = useLocation();
     const prefix = slug ? `/${slug}` : '';
@@ -78,7 +79,7 @@ export default function Home() {
                     </div>
                     <div className="md:col-span-8 md:col-start-6">
                         <p className="text-2xl md:text-4xl font-light leading-snug tracking-tight">
-                            {brandConfig.name} {t.home.about.description}
+                            {brand.name} {t.home.about.description}
                         </p>
                         <div className="mt-12 grid grid-cols-2 gap-8 border-t border-white/10 pt-12">
                             <div>

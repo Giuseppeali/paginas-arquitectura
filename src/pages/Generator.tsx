@@ -22,7 +22,7 @@ export default function Generator() {
     const [slug, setSlug] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [generationError, setGenerationError] = useState('');
-    const [isCropping, setIsCropping] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     // Edit mode states
@@ -75,24 +75,32 @@ export default function Generator() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setIsCropping(true);
+        setIsUploading(true);
+        setGenerationError('');
 
-        // Si es un SVG puro, usamos su información vector nativa sin rasterizar / recortar
+        // Si es un SVG puro, lo leemos como texto y lo subimos igual o extraemos el data url
         if (file.type === 'image/svg+xml') {
             const reader = new FileReader();
-            reader.onload = (event) => {
-                let result = event.target?.result as string;
-                // A veces sube como octet-stream, nos aseguramos que se envíe como SVG
-                if (result.startsWith('data:application/octet-stream;')) {
-                    result = result.replace('data:application/octet-stream;', 'data:image/svg+xml;');
+            reader.onload = async (event) => {
+                try {
+                    let result = event.target?.result as string;
+                    if (result.startsWith('data:application/octet-stream;')) {
+                        result = result.replace('data:application/octet-stream;', 'data:image/svg+xml;');
+                    }
+
+                    // Podemos guardarlo crudo en estado primero para preview local
+                    setLogo(result);
+                } catch (err) {
+                    console.error("Error setting SVG:", err);
+                    setGenerationError('Error procesando SVG.');
+                } finally {
+                    setIsUploading(false);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
                 }
-                setLogo(result);
-                setIsCropping(false);
-                if (fileInputRef.current) fileInputRef.current.value = '';
             };
             reader.onerror = () => {
                 alert('Hubo un error al leer el archivo SVG.');
-                setIsCropping(false);
+                setIsUploading(false);
                 if (fileInputRef.current) fileInputRef.current.value = '';
             };
             reader.readAsDataURL(file);
@@ -100,28 +108,31 @@ export default function Generator() {
         }
 
         try {
+            // Recorta bordes transparentes y devuelve Data URL (PNG Base 64 local)
             const croppedDataUrl = await cropTransparentPixels(file);
+
+            // Simplemente guardamos para preview local primero, el bucket se sube al "Generar"
             setLogo(croppedDataUrl);
         } catch (err) {
             console.error("Cropping failed:", err);
-            alert('Failed to crop logo. Try a different file.');
+            setGenerationError('Error al subir. Intente usar un archivo más pequeño o un SVG vector.');
         } finally {
-            setIsCropping(false);
-            if (fileInputRef.current) fileInputRef.current.value = ''; // Reset input
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
     const handleCropUrl = async () => {
-        if (!logo || logo.startsWith('data:image')) return; // Don't crop if it's already a Data URL (presumably cropped)
-        setIsCropping(true);
+        if (!logo || logo.startsWith('data:image')) return;
+        setIsUploading(true);
         try {
             const croppedDataUrl = await cropTransparentPixels(logo);
             setLogo(croppedDataUrl);
         } catch (err) {
             console.error("Cropping from URL failed:", err);
-            alert('Failed to crop logo from URL. It might be blocked by browser CORS restrictions. Please download the image and upload it as a file instead.');
+            alert('Falló el recorte desde URL (probablemente por restricciones CORS de ese dominio). Sugerencia: descargue la imagen y súbala como archivo.');
         } finally {
-            setIsCropping(false);
+            setIsUploading(false);
         }
     };
 
@@ -134,30 +145,65 @@ export default function Generator() {
         setGenerationError('');
         setIsGenerating(true);
 
-        const clientData = {
-            slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-            name,
-            logo,
-            logo_scale: logoScale,
-            invert_logo: invertLogo,
-            email,
-            language
-        };
+        let finalLogoUrl = logo;
 
-        const { data, error } = await supabase
-            .from('clients')
-            .upsert(clientData, { onConflict: 'slug' })
-            .select()
-            .single();
+        try {
+            // SI el logo actual es un string en base64 (subido localmente o crop locally) y no una URL remota
+            if (logo.startsWith('data:image')) {
+                // Generar file a partir del base64 para subir a Supabase Bucket
+                const response = await fetch(logo);
+                const blob = await response.blob();
+                const fileExt = blob.type.split('/')[1] || 'png';
+                const fileName = `${slug}-${Date.now()}.${fileExt === 'svg+xml' ? 'svg' : fileExt}`;
+                const filePath = `client-logos/${fileName}`;
 
-        setIsGenerating(false);
+                // Usando un bucket publico llamado 'public_assets'
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('public_assets')
+                    .upload(filePath, blob, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
 
-        if (error) {
-            console.error("Error saving to Supabase:", error);
-            setGenerationError('Failed to generate link. Check your Supabase configuration.');
-        } else {
-            const baseUrl = window.location.origin;
-            setGeneratedUrl(`${baseUrl}/${data.slug}?token=${data.id}`);
+                if (uploadError) {
+                    throw new Error(`Error subiendo imagen: ${uploadError.message}`);
+                }
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('public_assets')
+                    .getPublicUrl(filePath);
+
+                finalLogoUrl = publicUrlData.publicUrl;
+            }
+
+            const clientData = {
+                slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+                name,
+                logo: finalLogoUrl,
+                logo_scale: logoScale,
+                invert_logo: invertLogo,
+                email,
+                language
+            };
+
+            const { data, error } = await supabase
+                .from('clients')
+                .upsert(clientData, { onConflict: 'slug' })
+                .select()
+                .single();
+
+            if (error) {
+                console.error("Error saving to Supabase:", error);
+                throw new Error('Falló al guardar cliente (Error DB / Permisos).');
+            } else {
+                const baseUrl = window.location.origin;
+                setGeneratedUrl(`${baseUrl}/${data.slug}?token=${data.id}`);
+            }
+        } catch (e: any) {
+            console.error(e);
+            setGenerationError(e.message || 'Error general al generar el enlace.');
+        } finally {
+            setIsGenerating(false);
         }
     };
 
@@ -246,20 +292,20 @@ export default function Generator() {
                                         />
                                         <button
                                             onClick={() => fileInputRef.current?.click()}
-                                            disabled={isCropping}
+                                            disabled={isUploading || isGenerating}
                                             className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 whitespace-nowrap text-sm"
                                         >
-                                            {isCropping ? <Loader2 size={16} className="animate-spin" /> : t.generator.logoUpload}
+                                            {isUploading ? <Loader2 size={16} className="animate-spin" /> : t.generator.logoUpload}
                                         </button>
                                     </div>
 
-                                    {logo && !logo.startsWith('data:image') && (
+                                    {logo && !logo.startsWith('data:image') && !logo.includes('supabase.co') && (
                                         <button
                                             onClick={handleCropUrl}
-                                            disabled={isCropping}
+                                            disabled={isUploading || isGenerating}
                                             className="flex items-center justify-center gap-2 border border-white/20 hover:bg-white/10 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
                                         >
-                                            {isCropping ? <Loader2 size={16} className="animate-spin" /> : t.generator.logoRemoveMargins}
+                                            {isUploading ? <Loader2 size={16} className="animate-spin" /> : t.generator.logoRemoveMargins}
                                         </button>
                                     )}
                                 </div>

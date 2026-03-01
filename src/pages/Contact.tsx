@@ -4,11 +4,12 @@ import { ArrowRight, Instagram, Linkedin, Mail, ChevronDown } from 'lucide-react
 import Logo from '../components/Logo';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 import { useTranslation } from '../utils/translations';
 
 export default function Contact() {
-    const { t } = useTranslation(brandConfig.language);
+    const { brand } = useBrand();
+    const { t } = useTranslation(brand.language);
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -38,8 +39,8 @@ export default function Contact() {
                         <div className="space-y-10">
                             <div>
                                 <h4 className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-4">Email Us</h4>
-                                <a href={`mailto:${brandConfig.email}`} className="text-xl md:text-2xl border-b border-white/30 pb-1 hover:border-white transition-colors inline-block">
-                                    {brandConfig.email}
+                                <a href={`mailto:${brand.email}`} className="text-xl md:text-2xl border-b border-white/30 pb-1 hover:border-white transition-colors inline-block">
+                                    {brand.email}
                                 </a>
                             </div>
 

@@ -4,14 +4,15 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import Logo from './Logo';
 import { useTranslation } from '../utils/translations';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
     const { slug } = useParams();
-    const { t } = useTranslation(brandConfig.language);
+    const { brand } = useBrand();
+    const { t } = useTranslation(brand.language);
 
     useEffect(() => {
         const handleScroll = () => {

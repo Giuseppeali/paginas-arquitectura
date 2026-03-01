@@ -12,32 +12,35 @@ import Unauthorized from './pages/Unauthorized';
 import ProtectedRoute from './components/ProtectedRoute';
 import ClientGuard from './components/ClientGuard';
 import { AuthProvider } from './context/AuthContext';
+import { BrandProvider } from './context/BrandContext';
 
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
+      <BrandProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Client Guarded Routes (Support optional /:slug prefix for white-labeling) */}
-          <Route element={<ClientGuard />}>
-            <Route path="/:slug?" element={<ClientProfile />}>
-              <Route index element={<Home />} />
-              <Route path="contact" element={<Contact />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="projects/:id" element={<ProjectDetails />} />
+            {/* Client Guarded Routes (Support optional /:slug prefix for white-labeling) */}
+            <Route element={<ClientGuard />}>
+              <Route path="/:slug?" element={<ClientProfile />}>
+                <Route index element={<Home />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="projects" element={<Projects />} />
+                <Route path="projects/:id" element={<ProjectDetails />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Protected Admin Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/generator" element={<Generator />} />
-            <Route path="/admin" element={<Admin />} />
-          </Route>
-        </Routes>
-      </Router>
+            {/* Protected Admin Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/generator" element={<Generator />} />
+              <Route path="/admin" element={<Admin />} />
+            </Route>
+          </Routes>
+        </Router>
+      </BrandProvider>
     </AuthProvider>
   );
 }

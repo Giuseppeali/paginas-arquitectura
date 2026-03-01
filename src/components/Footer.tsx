@@ -1,11 +1,12 @@
 import React from 'react';
 import { Instagram, Linkedin } from 'lucide-react';
 import Logo from './Logo';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 import { useTranslation } from '../utils/translations';
 
 export default function Footer() {
-    const { t } = useTranslation(brandConfig.language);
+    const { brand } = useBrand();
+    const { t } = useTranslation(brand.language);
     return (
         <footer id="contact" className="bg-[#0a0a0a] pt-32 pb-12 border-t border-white/10 mt-20">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -15,8 +16,8 @@ export default function Footer() {
                         <p className="text-2xl md:text-4xl font-display font-light tracking-tighter leading-tight mb-8 max-w-md">
                             {t.contact.subtitle}
                         </p>
-                        <a href={`mailto:${brandConfig.email}`} className="text-lg border-b border-white/30 pb-1 hover:border-white transition-colors">
-                            {brandConfig.email}
+                        <a href={`mailto:${brand.email}`} className="text-lg border-b border-white/30 pb-1 hover:border-white transition-colors">
+                            {brand.email}
                         </a>
                     </div>
 
@@ -47,7 +48,7 @@ export default function Footer() {
                 </div>
 
                 <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-xs text-gray-500 tracking-widest uppercase">
-                    <p>&copy; {new Date().getFullYear()} {brandConfig.fullName}</p>
+                    <p>&copy; {new Date().getFullYear()} {brand.fullName}</p>
                     <div className="flex space-x-6 mt-4 md:mt-0">
                         <a href="#" className="hover:text-white transition-colors">Privacy</a>
                         <a href="#" className="hover:text-white transition-colors">Legal Notice</a>

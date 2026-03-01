@@ -4,11 +4,12 @@ import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { projects } from '../data/projects';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 import { useTranslation } from '../utils/translations';
 
 export default function Projects() {
-    const { t, lang } = useTranslation(brandConfig.language);
+    const { brand } = useBrand();
+    const { t, lang } = useTranslation(brand.language);
     const { slug } = useParams();
 
     const prefix = slug ? `/${slug}` : '';

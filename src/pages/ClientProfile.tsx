@@ -2,7 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Navigate, useSearchParams, useNavigate, Outlet } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabaseClient';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
+import Logo from '../components/Logo';
+
+interface ClientData {
+    id: string;
+    slug: string;
+    name: string;
+    logo: string;
+    logo_scale: number;
+    invert_logo: boolean;
+    email: string;
+    language: 'en' | 'es';
+    created_at: string;
+}
 
 // We wrap the sub-routes via an Outlet, injecting the fetched client data.
 // Based on the original Generator, it expected: name, logo, invertLogo, email
@@ -10,7 +23,8 @@ import { brandConfig } from '../config/brand';
 export default function ClientProfile() {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const [clientData, setClientData] = useState<any>(null);
+    const { setBrand } = useBrand();
+    const [clientData, setClientData] = useState<ClientData | null>(null);
     const [searchParams] = useSearchParams();
 
     // We get the token from the URL, or fallback to the local storage if they've already authenticated
@@ -55,24 +69,18 @@ export default function ClientProfile() {
                     localStorage.removeItem('client_token');
                 }
             } else {
-                setClientData(data);
+                setClientData(data as ClientData);
 
-                // Mutate the global brandConfig so Logo, Footer, and Home read the new data
-                brandConfig.name = data.name;
-                brandConfig.fullName = data.name;
-                brandConfig.logoUrl = data.logo;
-                brandConfig.email = data.email;
-                brandConfig.invertLogo = data.invert_logo;
-                brandConfig.language = data.language || 'es';
-                brandConfig.logoScale = data.logo_scale || 100;
-
-                // Store in local storage so it persists if the user navigates to /projects
-                localStorage.setItem('brandName', data.name);
-                localStorage.setItem('brandLogo', data.logo || '');
-                localStorage.setItem('brandEmail', data.email || '');
-                localStorage.setItem('brandInvertLogo', data.invert_logo ? 'true' : 'false');
-                localStorage.setItem('brandLang', data.language || 'es');
-                localStorage.setItem('brandLogoScale', (data.logo_scale || 100).toString());
+                // Update the global brand context state
+                setBrand({
+                    name: data.name,
+                    fullName: data.name,
+                    logoUrl: data.logo,
+                    email: data.email,
+                    invertLogo: data.invert_logo,
+                    language: data.language || 'es',
+                    logoScale: data.logo_scale || 100
+                });
 
                 // Save token to authenticate further access across guarded routes
                 localStorage.setItem('client_token', token);

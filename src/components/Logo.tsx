@@ -1,5 +1,5 @@
 import React from 'react';
-import { brandConfig } from '../config/brand';
+import { useBrand } from '../context/BrandContext';
 
 interface LogoProps {
     className?: string;
@@ -11,10 +11,12 @@ interface LogoProps {
 }
 
 const Logo = ({ className = "", align = "left", overrideUrl, overrideScale, overrideInvert, overrideName }: LogoProps) => {
-    const finalUrl = overrideUrl !== undefined ? overrideUrl : brandConfig.logoUrl;
-    const finalScale = overrideScale !== undefined ? overrideScale : (brandConfig.logoScale || 100);
-    const finalInvert = overrideInvert !== undefined ? overrideInvert : brandConfig.invertLogo;
-    const finalName = overrideName !== undefined ? overrideName : brandConfig.name;
+    const { brand } = useBrand();
+
+    const finalUrl = overrideUrl !== undefined ? overrideUrl : brand.logoUrl;
+    const finalScale = overrideScale !== undefined ? overrideScale : (brand.logoScale || 100);
+    const finalInvert = overrideInvert !== undefined ? overrideInvert : brand.invertLogo;
+    const finalName = overrideName !== undefined ? overrideName : brand.name;
 
     let displayUrl = finalUrl;
     if (displayUrl && displayUrl.trim().startsWith('<svg')) {
