@@ -1,6 +1,8 @@
 import React from 'react';
 import { useBrand } from '../context/BrandContext';
 
+import DOMPurify from 'dompurify';
+
 interface LogoProps {
     className?: string;
     align?: 'left' | 'center' | 'right';
@@ -20,8 +22,10 @@ const Logo = ({ className = "", align = "left", overrideUrl, overrideScale, over
 
     let displayUrl = finalUrl;
     if (displayUrl && displayUrl.trim().startsWith('<svg')) {
-        // Encode raw SVG text to data URI making it safe for the img src
-        displayUrl = `data:image/svg+xml;utf8,${encodeURIComponent(displayUrl)}`;
+        // Sanitize raw SVG code to prevent XSS attacks before embedding
+        const cleanSvg = DOMPurify.sanitize(displayUrl, { USE_PROFILES: { svg: true } });
+        // Encode safe SVG to data URI making it work natively in the img src attribute
+        displayUrl = `data:image/svg+xml;utf8,${encodeURIComponent(cleanSvg)}`;
     }
 
     // Alignment styles
