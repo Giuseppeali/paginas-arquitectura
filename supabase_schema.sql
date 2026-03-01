@@ -19,17 +19,23 @@ CREATE POLICY "Allow public read access"
   TO public
   USING (true);
 
--- Allow public insert/update (upsert) access so the Generator can save data
--- Note: In a real production app without auth, you might want to restrict this
--- or use a backend API route. For this use case, we allow public inserts.
-CREATE POLICY "Allow public insert"
+-- Require authentication for inserts
+CREATE POLICY "Enable insert for authenticated users only"
   ON clients
   FOR INSERT
-  TO public
+  TO authenticated
   WITH CHECK (true);
 
-CREATE POLICY "Allow public update"
+-- Require authentication for updates
+CREATE POLICY "Enable update for authenticated users only"
   ON clients
   FOR UPDATE
-  TO public
+  TO authenticated
+  USING (true);
+
+-- Require authentication for deletes
+CREATE POLICY "Enable delete for authenticated users only"
+  ON clients
+  FOR DELETE
+  TO authenticated
   USING (true);

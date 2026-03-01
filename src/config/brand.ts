@@ -33,10 +33,10 @@ const dynamicData = getUrlOrSessionData();
 
 export const brandConfig = {
     // Priority: 1. URL/Session parameter -> 2. Environment variable -> 3. Default fallback
-    name: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'TTO Arquitectura',
-    fullName: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'TTO Arquitectura S.C.',
+    name: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'Panel de Control',
+    fullName: dynamicData.name || import.meta.env.VITE_CLIENT_NAME || 'Panel de Control',
     logoUrl: dynamicData.logoUrl || import.meta.env.VITE_CLIENT_LOGO || '',
-    email: dynamicData.email || import.meta.env.VITE_CLIENT_EMAIL || 'hola@ttoarquitectura.com',
+    email: dynamicData.email || import.meta.env.VITE_CLIENT_EMAIL || '',
     invertLogo: dynamicData.invertLogo || import.meta.env.VITE_CLIENT_INVERT_LOGO === 'true',
     language: dynamicData.language || 'es' as 'en' | 'es',
     logoScale: dynamicData.logoScale || parseInt(import.meta.env.VITE_CLIENT_LOGO_SCALE || '100')

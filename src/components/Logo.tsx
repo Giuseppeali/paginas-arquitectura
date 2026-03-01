@@ -16,20 +16,27 @@ const Logo = ({ className = "", align = "left", overrideUrl, overrideScale, over
     const finalInvert = overrideInvert !== undefined ? overrideInvert : brandConfig.invertLogo;
     const finalName = overrideName !== undefined ? overrideName : brandConfig.name;
 
-    if (finalUrl) {
-        const filterClass = finalInvert ? "brightness-0 invert" : "";
-        // Alignment styles
-        const justifyClass = align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center';
-        const objectPosition = align === 'left' ? 'object-left' : align === 'right' ? 'object-right' : 'object-center';
+    let displayUrl = finalUrl;
+    if (displayUrl && displayUrl.trim().startsWith('<svg')) {
+        // Encode raw SVG text to data URI making it safe for the img src
+        displayUrl = `data:image/svg+xml;utf8,${encodeURIComponent(displayUrl)}`;
+    }
 
-        // Si el usuario nos pasa una altura explícita (p.ej en Navbar h-6, h-8, etc), la usamos, sino ponemos una por defecto
-        const hasHeight = /\bh-\d+/.test(className) || /\bmd:h-\d+/.test(className) || /\bh-full/.test(className);
-        const defaultHeight = hasHeight ? '' : 'h-8 md:h-10';
+    // Alignment styles
+    const justifyClass = align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center';
+    const objectPosition = align === 'left' ? 'object-left' : align === 'right' ? 'object-right' : 'object-center';
+
+    // Si el usuario nos pasa una altura explícita (p.ej en Navbar h-6, h-8, etc), la usamos, sino ponemos una por defecto
+    const hasHeight = /\bh-\d+/.test(className) || /\bmd:h-\d+/.test(className) || /\bh-full/.test(className);
+    const defaultHeight = hasHeight ? '' : 'h-8 md:h-10';
+
+    if (displayUrl) {
+        const filterClass = finalInvert ? "brightness-0 invert" : "";
 
         return (
             <div className={`flex items-center ${justifyClass} overflow-visible ${defaultHeight} ${className}`}>
                 <img
-                    src={finalUrl}
+                    src={displayUrl}
                     alt={finalName}
                     /* Al fijar un max-width relativo a ems o rems estrictos, evitamos que los logos cuadrados se vean gigantes 
                        mientras permitimos que los logos horizontales tengan suficiente espacio visual. */
@@ -43,17 +50,20 @@ const Logo = ({ className = "", align = "left", overrideUrl, overrideScale, over
         );
     }
 
+
+    // Generic fallback: Render text
     return (
-        <svg viewBox="0 0 180 60" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className={className}>
-            <rect x="0" y="0" width="160" height="12" />
-            <rect x="25" y="12" width="12" height="48" />
-            <rect x="65" y="12" width="12" height="48" />
-            <rect x="105" y="12" width="12" height="48" />
-            <rect x="105" y="48" width="55" height="12" />
-            <rect x="148" y="12" width="12" height="48" />
-            <circle cx="170" cy="54" r="4" stroke="currentColor" strokeWidth="1" fill="none" />
-            <text x="170" y="56" fontSize="5" fontFamily="sans-serif" textAnchor="middle" fill="currentColor">R</text>
-        </svg>
+        <div className={`flex items-center ${justifyClass} overflow-visible ${defaultHeight} ${className}`}>
+            <span
+                className={`font-display font-medium tracking-widest uppercase truncate whitespace-nowrap transition-transform duration-300`}
+                style={{
+                    transform: `scale(${finalScale / 100})`,
+                    transformOrigin: align === 'left' ? 'left center' : align === 'right' ? 'right center' : 'center center'
+                }}
+            >
+                {finalName || 'Panel de Control'}
+            </span>
+        </div>
     );
 };
 

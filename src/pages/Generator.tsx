@@ -76,6 +76,29 @@ export default function Generator() {
         if (!file) return;
 
         setIsCropping(true);
+
+        // Si es un SVG puro, usamos su información vector nativa sin rasterizar / recortar
+        if (file.type === 'image/svg+xml') {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                let result = event.target?.result as string;
+                // A veces sube como octet-stream, nos aseguramos que se envíe como SVG
+                if (result.startsWith('data:application/octet-stream;')) {
+                    result = result.replace('data:application/octet-stream;', 'data:image/svg+xml;');
+                }
+                setLogo(result);
+                setIsCropping(false);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            };
+            reader.onerror = () => {
+                alert('Hubo un error al leer el archivo SVG.');
+                setIsCropping(false);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+
         try {
             const croppedDataUrl = await cropTransparentPixels(file);
             setLogo(croppedDataUrl);
@@ -203,8 +226,15 @@ export default function Generator() {
                                         <input
                                             type="text"
                                             value={logo}
-                                            onChange={(e) => setLogo(e.target.value)}
-                                            placeholder="https://example.com/logo.png"
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val.trim().startsWith('<svg')) {
+                                                    setLogo(`data:image/svg+xml;utf8,${encodeURIComponent(val)}`);
+                                                } else {
+                                                    setLogo(val);
+                                                }
+                                            }}
+                                            placeholder="https://example.com/logo.png o pegar <svg..."
                                             className="flex-1 bg-transparent border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
                                         />
                                         <input
